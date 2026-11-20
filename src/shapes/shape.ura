@@ -1,0 +1,23 @@
+struct Shape:
+    material Material
+
+    fn set_hit(h &Hit, r &Ray, t f64, outward Vec3):
+        h.t = t
+        h.point = r.at(t)
+        h.front_face = r.direction.dot(outward) < 0.0
+        h.normal = outward
+        if not h.front_face:
+            h.normal = outward.neg()
+        h.material = self.material
+
+fn hit_plane(r &Ray, point &Vec3, n &Vec3, t_min f64, t_max f64, t &f64) bool:
+    denom f64 = n.dot(r.direction)
+    if fabs(denom) < PARALLEL_EPSILON:
+        return False
+    t = (point - r.origin).dot(n) / denom
+    return t > t_min and t < t_max
+
+fn hit_disk(r &Ray, center &Vec3, n &Vec3, radius f64, t_min f64, t_max f64, t &f64) bool:
+    if not hit_plane(&r, &center, &n, t_min, t_max, &t):
+        return False
+    return (r.at(t) - center).length_squared() <= radius * radius

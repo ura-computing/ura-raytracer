@@ -1,0 +1,67 @@
+use "@/math"
+use "@/stdlib"
+use "@/io"
+
+use "./src/config"
+use "./src/math"
+use "./src/shapes"
+use "./src/scene"
+use "./src/camera"
+use "./src/trace"
+
+FRAMES  i32 = 72
+SAMPLES i32 = 48
+W       i32 = 1280
+H       i32 = 720
+RADIUS  f64 = 4.7
+
+fn byte(value f64) char:
+    return ((255.99 * sqrt(fmin(value, 1.0))) as i32) as char
+
+fn frame_name(index i32) String:
+    name String = String::create("frames/frame_")
+    if index < 100:
+        name += "0"
+    if index < 10:
+        name += "0"
+    name += String::create(index)
+    name += ".ppm"
+    return name
+
+fn main() i32:
+    first i32 = 0
+    step i32 = 1
+    if os.argc == 3:
+        first = os.argv[1].to_int()
+        step = os.argv[2].to_int()
+    scene Scene = Scene::create()
+    camera Camera = Camera::create(W, H)
+    header String = String::create("P6\n")
+    header += String::create(W)
+    header += " "
+    header += String::create(H)
+    header += "\n255\n"
+
+    for frame in Range::create(first, FRAMES, step):
+        angle f64 = 0.6 * sin((frame as f64) * 2.0 * PI / (FRAMES as f64))
+        camera.position = { x: RADIUS * sin(angle), y: 1.35, z: RADIUS * cos(angle) }
+        camera.yaw = angle
+        camera.update()
+
+        pixels Array<char>
+        for y in Range::create(0, H):
+            for x in Range::create(0, W):
+                color Vec3
+                for s in Range::create(0, SAMPLES):
+                    color += trace(&scene, camera.ray_for(x, y))
+                color = color / (SAMPLES as f64)
+                pixels.append(byte(color.x))
+                pixels.append(byte(color.y))
+                pixels.append(byte(color.z))
+
+        file i8[] = fopen(frame_name(frame).chars(), "wb")
+        fputs(header.chars(), file)
+        fwrite(pixels.data, 1, pixels.size(), file)
+        fclose(file)
+        output("frame ", frame + 1, "/", FRAMES, "\n")
+    return 0

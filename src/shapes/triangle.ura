@@ -1,0 +1,36 @@
+struct Triangle from Shape:
+    a Vec3
+    b Vec3
+    c Vec3
+    normal Vec3
+
+    pub fn create(a Vec3, b Vec3, c Vec3, material Material) Triangle:
+        s Triangle
+        s.a = a
+        s.b = b
+        s.c = c
+        s.normal = (b - a).cross(c - a).normalize()
+        s.material = material
+        return s
+
+    fn intersect(r &Ray, t_min f64, t_max f64, h &Hit) bool:
+        edge1 Vec3 = self.b - self.a
+        edge2 Vec3 = self.c - self.a
+        p Vec3 = r.direction.cross(edge2)
+        det f64 = edge1.dot(p)
+        if fabs(det) < PARALLEL_EPSILON:
+            return False
+        inv_det f64 = 1.0 / det
+        s Vec3 = r.origin - self.a
+        u f64 = s.dot(p) * inv_det
+        if u < 0.0 or u > 1.0:
+            return False
+        q Vec3 = s.cross(edge1)
+        v f64 = r.direction.dot(q) * inv_det
+        if v < 0.0 or u + v > 1.0:
+            return False
+        t f64 = edge2.dot(q) * inv_det
+        if t <= t_min or t >= t_max:
+            return False
+        self.set_hit(h, r, t, self.normal)
+        return True

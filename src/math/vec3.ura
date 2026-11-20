@@ -1,0 +1,14 @@
+struct Vec3:
+    x f64
+    y f64
+    z f64
+
+    use "./vec3/operators"
+    use "./vec3/methods"
+
+fn rgb(red f64, green f64, blue f64) Vec3:
+    return {
+        x: red / 255.0,
+        y: green / 255.0,
+        z: blue / 255.0
+    }

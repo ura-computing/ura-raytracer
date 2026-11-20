@@ -1,0 +1,104 @@
+use "@/math"
+use "@/stdlib"
+use "@/io"
+use "@/sdl2"
+
+use "./config"
+use "./math"
+use "./shapes"
+use "./scene"
+use "./camera"
+use "./trace"
+
+fn main() i32:
+    SDL_Init(SDL_INIT_VIDEO)
+    window i8[] = SDL_CreateWindow(
+        "ura raytracer",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        WIDTH,
+        HEIGHT,
+        SDL_WINDOW_SHOWN
+    )
+    renderer i8[] = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED)
+    texture i8[] = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_RGBA8888,
+        SDL_TEXTUREACCESS_STREAMING,
+        WIDTH,
+        HEIGHT
+    )
+
+    scene Scene = Scene::create()
+    camera Camera = Camera::create(WIDTH, HEIGHT)
+
+    accumulated Array<Vec3>
+    accumulated.resize(WIDTH * HEIGHT)
+    pixels Array<u32>
+    pixels.resize(WIDTH * HEIGHT)
+    title String
+    title.resize(64)
+    none i8[]
+    samples i32 = 0
+    quit bool = False
+    event SDL_Event
+
+    while not quit:
+        changed bool = False
+        while SDL_PollEvent(&event) != 0:
+            if event.type == SDL_QUIT:
+                quit = True
+            if event.type != SDL_KEYDOWN:
+                continue
+            step Vec3
+            match event.sym:
+                case SDLK_ESCAPE:
+                    quit = True
+                case SDLK_r:
+                    camera.reset()
+                    changed = True
+                case SDLK_UP:
+                    step.y = CAMERA_STEP
+                case SDLK_DOWN:
+                    step.y = -CAMERA_STEP
+                case SDLK_LEFT:
+                    step.x = -CAMERA_STEP
+                case SDLK_RIGHT:
+                    step.x = CAMERA_STEP
+                case SDLK_PAGEUP:
+                    step.z = -CAMERA_STEP
+                case SDLK_PAGEDOWN:
+                    step.z = CAMERA_STEP
+                default:
+                    continue
+            if step.length_squared() > 0.0:
+                camera.move(step)
+                changed = True
+
+        if changed:
+            samples = 0
+            dark Vec3
+            for i in Range::create(0, WIDTH * HEIGHT):
+                accumulated[i] = dark
+
+        start u32 = SDL_GetTicks()
+        samples += 1
+        inverse f64 = 1.0 / (samples as f64)
+        for y in Range::create(0, HEIGHT):
+            for x in Range::create(0, WIDTH):
+                i i32 = y * WIDTH + x
+                accumulated[i] += trace(&scene, camera.ray_for(x, y))
+                pixels[i] = to_pixel(accumulated[i] * inverse)
+        elapsed u32 = SDL_GetTicks() - start
+
+        SDL_UpdateTexture(texture, none, pixels.data as i8[], WIDTH * 4)
+        SDL_RenderCopy(renderer, texture, none, none)
+        SDL_RenderPresent(renderer)
+        sprintf(title.data, "%u ms | %d samples", elapsed, samples)
+        SDL_SetWindowTitle(window, title.data)
+
+    SDL_DestroyTexture(texture)
+    SDL_DestroyRenderer(renderer)
+    SDL_DestroyWindow(window)
+    SDL_Quit()
+    return 0

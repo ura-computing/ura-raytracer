@@ -1,0 +1,51 @@
+struct Cylinder from Shape:
+    center Vec3
+    axis Vec3
+    radius f64
+    height f64
+
+    pub fn create(center Vec3, axis Vec3, radius f64, height f64, material Material) Cylinder:
+        s Cylinder
+        s.center = center
+        s.axis = axis.normalize()
+        s.radius = radius
+        s.height = height
+        s.material = material
+        return s
+
+    fn intersect(r &Ray, t_min f64, t_max f64, h &Hit) bool:
+        half_height f64 = self.height * 0.5
+        best_t f64 = t_max
+        best_normal Vec3
+        oc Vec3 = r.origin - self.center
+        dir_axis f64 = r.direction.dot(self.axis)
+        oc_axis f64 = oc.dot(self.axis)
+        dir_perp Vec3 = r.direction - self.axis * dir_axis
+        oc_perp Vec3 = oc - self.axis * oc_axis
+        a f64 = dir_perp.length_squared()
+        if a > PARALLEL_EPSILON:
+            half_b f64 = oc_perp.dot(dir_perp)
+            c f64 = oc_perp.length_squared() - self.radius * self.radius
+            discriminant f64 = half_b * half_b - a * c
+            if discriminant >= 0.0:
+                root f64 = sqrt(discriminant)
+                roots Array<f64> = [(-half_b - root) / a, (-half_b + root) / a]
+                for t in roots:
+                    side_h f64 = oc_axis + t * dir_axis
+                    is_closer bool = t > t_min and t < best_t
+                    if is_closer and fabs(side_h) <= half_height:
+                        best_t = t
+                        best_normal = (oc_perp + dir_perp * t) / self.radius
+                        break
+        sides Array<f64> = [-1.0, 1.0]
+        for side in sides:
+            cap_normal Vec3 = self.axis * side
+            cap_center Vec3 = self.center + cap_normal * half_height
+            t f64 = 0.0
+            if hit_disk(&r, &cap_center, &cap_normal, self.radius, t_min, best_t, &t):
+                best_t = t
+                best_normal = cap_normal
+        if best_t >= t_max:
+            return False
+        self.set_hit(h, r, best_t, best_normal)
+        return True

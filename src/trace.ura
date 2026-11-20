@@ -1,0 +1,77 @@
+fn sky(direction Vec3) Vec3:
+    a f64 = 0.5 * (direction.y + 1.0)
+    ground Vec3 = {
+        x: 0.85,
+        y: 0.65,
+        z: 0.5
+    }
+    top Vec3 = {
+        x: 0.25,
+        y: 0.35,
+        z: 0.65
+    }
+    return ground * (1.0 - a) + top * a
+
+fn reflectance(cosine f64, eta f64) f64:
+    r0 f64 = (1.0 - eta) / (1.0 + eta)
+    r0 = r0 * r0
+    return r0 + (1.0 - r0) * pow(1.0 - cosine, 5.0)
+
+fn direct_light(scene &Scene, h &Hit) Vec3:
+    dark Vec3
+    to_light Vec3 = scene.light_position - h.point
+    distance f64 = to_light.length()
+    light_direction Vec3 = to_light / distance
+    cosine f64 = h.normal.dot(light_direction)
+    if cosine <= 0.0:
+        return dark
+    if scene.occluded(Ray::create(h.point, light_direction), HIT_EPSILON, distance):
+        return dark
+    return scene.light_color * cosine
+
+fn bounce(r &Ray, h &Hit) Vec3:
+    m Material = h.material
+    match m.kind:
+        case Surface::DIFFUSE:
+            scattered Vec3 = h.normal + random::unit_vector()
+            if scattered.length_squared() < PARALLEL_EPSILON:
+                return h.normal
+            return scattered
+        case Surface::MIRROR:
+            return r.direction.reflect(h.normal)
+        default:
+            eta f64 = m.ior
+            if h.front_face:
+                eta = 1.0 / m.ior
+            cos_theta f64 = fmin(r.direction.neg().dot(h.normal), 1.0)
+            sin_theta f64 = sqrt(1.0 - cos_theta * cos_theta)
+            total_reflection bool = eta * sin_theta > 1.0
+            if total_reflection or reflectance(cos_theta, eta) > random::uniform():
+                return r.direction.reflect(h.normal)
+            return r.direction.refract(h.normal, eta)
+    return h.normal
+
+fn trace(scene &Scene, start Ray) Vec3:
+    r Ray = start
+    result Vec3
+    throughput Vec3 = {
+        x: 1.0,
+        y: 1.0,
+        z: 1.0
+    }
+    for depth in Range::create(0, MAX_BOUNCES):
+        h Hit
+        if not scene.closest_hit(&r, HIT_EPSILON, FAR, &h):
+            result += throughput * sky(r.direction)
+            break
+        if h.material.kind == Surface::DIFFUSE:
+            result += throughput * h.material.color * direct_light(&scene, &h)
+        throughput = throughput * h.material.color
+        r = Ray::create(h.point, bounce(&r, &h).normalize())
+    return result
+
+fn to_pixel(c Vec3) u32:
+    red u32 = (255.99 * sqrt(fmin(c.x, 1.0))) as u32
+    green u32 = (255.99 * sqrt(fmin(c.y, 1.0))) as u32
+    blue u32 = (255.99 * sqrt(fmin(c.z, 1.0))) as u32
+    return red * 16777216 + green * 65536 + blue * 256 + 255

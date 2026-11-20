@@ -1,0 +1,38 @@
+enum Surface: DIFFUSE, MIRROR, GLASS
+
+struct Material:
+    kind Surface
+    color Vec3
+    ior f64
+
+    pub fn diffuse(color Vec3) Material:
+        return {
+            kind: Surface::DIFFUSE,
+            color: color,
+            ior: 1.5
+        }
+
+    pub fn mirror(color Vec3) Material:
+        return {
+            kind: Surface::MIRROR,
+            color: color,
+            ior: 1.5
+        }
+
+    pub fn glass(ior f64) Material:
+        return {
+            kind: Surface::GLASS,
+            color: {
+                x: 1.0,
+                y: 1.0,
+                z: 1.0
+            },
+            ior: ior
+        }
+
+struct Hit:
+    t f64
+    point Vec3
+    normal Vec3
+    front_face bool
+    material Material

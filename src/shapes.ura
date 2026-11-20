@@ -1,0 +1,8 @@
+use "./shapes/material"
+use "./shapes/shape"
+use "./shapes/sphere"
+use "./shapes/plane"
+use "./shapes/triangle"
+use "./shapes/rectangle"
+use "./shapes/cylinder"
+use "./shapes/cone"

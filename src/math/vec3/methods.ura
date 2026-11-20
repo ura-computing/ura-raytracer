@@ -1,0 +1,55 @@
+fn neg() Vec3:
+    return {
+        x: -self.x,
+        y: -self.y,
+        z: -self.z
+    }
+
+fn dot(o &Vec3) f64:
+    return self.x * o.x + self.y * o.y + self.z * o.z
+
+fn cross(o &Vec3) Vec3:
+    return {
+        x: self.y * o.z - self.z * o.y,
+        y: self.z * o.x - self.x * o.z,
+        z: self.x * o.y - self.y * o.x
+    }
+
+fn length_squared() f64:
+    return self.dot(self)
+
+fn length() f64:
+    return sqrt(self.length_squared())
+
+fn normalize() Vec3:
+    len f64 = self.length()
+    if len < PARALLEL_EPSILON:
+        return self
+    return self / len
+
+fn reflect(n Vec3) Vec3:
+    return self - n * (2.0 * self.dot(n))
+
+fn refract(n Vec3, eta f64) Vec3:
+    cos_theta f64 = fmin(self.neg().dot(n), 1.0)
+    perpendicular Vec3 = (self + n * cos_theta) * eta
+    parallel Vec3 = n * -sqrt(fabs(1.0 - perpendicular.length_squared()))
+    return perpendicular + parallel
+
+fn rotate_x(angle f64) Vec3:
+    c f64 = cos(angle)
+    s f64 = sin(angle)
+    return {
+        x: self.x,
+        y: self.y * c - self.z * s,
+        z: self.y * s + self.z * c
+    }
+
+fn rotate_y(angle f64) Vec3:
+    c f64 = cos(angle)
+    s f64 = sin(angle)
+    return {
+        x: self.x * c + self.z * s,
+        y: self.y,
+        z: -self.x * s + self.z * c
+    }

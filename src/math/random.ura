@@ -1,0 +1,22 @@
+mod random:
+    fn uniform() f64:
+        return rand() as f64 / 2147483648.0
+
+    fn between(low f64, high f64) f64:
+        return low + (high - low) * uniform()
+
+    fn unit_vector() Vec3:
+        while True:
+            p Vec3 = {
+                x: between(-1.0, 1.0),
+                y: between(-1.0, 1.0),
+                z: between(-1.0, 1.0)
+            }
+            len2 f64 = p.length_squared()
+            if len2 > 0.000001 and len2 <= 1.0:
+                return p / sqrt(len2)
+        return {
+            x: 0.0,
+            y: 1.0,
+            z: 0.0
+        }
