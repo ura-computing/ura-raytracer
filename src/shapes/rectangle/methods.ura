@@ -1,0 +1,24 @@
+pub fn create(corner Vec3, edge_u Vec3, edge_v Vec3, material Material) Rectangle:
+    s Rectangle
+    n Vec3 = edge_u.cross(edge_v)
+    s.corner = corner
+    s.edge_u = edge_u
+    s.edge_v = edge_v
+    s.normal = n.normalize()
+    s.w = n / n.dot(n)
+    s.material = material
+    return s
+
+fn intersect(r &Ray, t_min f64, t_max f64, h &Hit) bool:
+    t f64 = 0.0
+    if not hit_plane(&r, &self.corner, &self.normal, t_min, t_max, &t):
+        return False
+    p Vec3 = r.at(t) - self.corner
+    alpha f64 = p.cross(self.edge_v).dot(self.w)
+    beta f64 = self.edge_u.cross(p).dot(self.w)
+    is_inside_u bool = alpha >= 0.0 and alpha <= 1.0
+    is_inside_v bool = beta >= 0.0 and beta <= 1.0
+    if not is_inside_u or not is_inside_v:
+        return False
+    self.set_hit(h, r, t, self.normal)
+    return True

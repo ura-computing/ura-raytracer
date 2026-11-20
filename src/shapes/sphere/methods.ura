@@ -1,0 +1,23 @@
+pub fn create(center Vec3, radius f64, material Material) Sphere:
+    s Sphere
+    s.center = center
+    s.radius = radius
+    s.material = material
+    return s
+
+fn intersect(r &Ray, t_min f64, t_max f64, h &Hit) bool:
+    oc Vec3 = r.origin - self.center
+    a f64 = r.direction.length_squared()
+    half_b f64 = oc.dot(r.direction)
+    c f64 = oc.length_squared() - self.radius * self.radius
+    discriminant f64 = half_b * half_b - a * c
+    if discriminant < 0.0:
+        return False
+    root f64 = sqrt(discriminant)
+    t f64 = (-half_b - root) / a
+    if t <= t_min or t >= t_max:
+        t = (-half_b + root) / a
+        if t <= t_min or t >= t_max:
+            return False
+    self.set_hit(h, r, t, (r.at(t) - self.center) / self.radius)
+    return True

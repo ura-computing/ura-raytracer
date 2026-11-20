@@ -2,11 +2,11 @@
   <img src="assets/logo.png" width="110" alt="Ura">
 </p>
 
-<h1 align="center">raytracer-ura</h1>
+<h1 align="center">Ura-Raytracer</h1>
 
 <p align="center">
   A path tracer written in <a href="https://github.com/mohammedhrima/ura-lang">ura</a>: glass, mirrors, soft shadows and a live SDL2 window.<br>
-  About 800 lines of ura, no C.
+  About 870 lines of ura, no C.
 </p>
 
 <p align="center">
@@ -27,8 +27,8 @@
 ## Run it
 
 ```
-git clone https://github.com/mohammedhrima/raytracer-ura
-cd raytracer-ura
+git clone https://github.com/mohammedhrima/Ura-Raytracer
+cd Ura-Raytracer
 ura install      # clones the ura std libraries into dependencies/
 ura run          # opens the window; the image gets cleaner every frame
 ```
@@ -65,13 +65,30 @@ The window keeps adding samples, so the noise fades away while the camera stands
 src/
 ├── main.ura          the SDL2 window, keys, the accumulation loop
 ├── config.ura        size, bounces, epsilons
-├── math/             Vec3 (operators + methods), Ray, mod random
+├── math/             Vec3, Ray, mod random
 ├── shapes/           Shape and its children: Sphere, Plane, Triangle, Rectangle, Cylinder, Cone
 ├── scene.ura         the objects, the lamp, closest_hit
 ├── camera.ura        position, yaw / pitch, one ray per pixel
 └── trace.ura         bounces, sky, light, pixels
 record.ura            renders the video frames without a window
 ```
+
+Every struct is written the same way: its file holds the data, a folder next to it holds the code.
+
+```
+math/
+├── vec3.ura              struct Vec3:
+│                             x f64
+│                             y f64
+│                             z f64
+│                             use "./vec3/operators"
+│                             use "./vec3/methods"
+└── vec3/
+    ├── operators.ura     operator +(o &Vec3) Vec3 ...
+    └── methods.ura       fn dot(o &Vec3) f64 ...
+```
+
+`use` inside a struct pastes the file there, so the methods see `self` as if they were written in place.
 
 Some ura in it:
 

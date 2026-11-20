@@ -1,0 +1,55 @@
+pub fn create(width i32, height i32) Camera:
+    c Camera
+    c.width = width
+    c.height = height
+    c.reset()
+    return c
+
+fn reset():
+    self.fov = 45.0
+    self.position = {
+        x: 0.0,
+        y: 1.35,
+        z: 4.7
+    }
+    self.yaw = 0.0
+    self.pitch = 0.0
+    self.update()
+
+fn update():
+    forward Vec3 = {
+        x: 0.0,
+        y: -0.2,
+        z: -1.0
+    }
+    world_up Vec3 = {
+        x: 0.0,
+        y: 1.0,
+        z: 0.0
+    }
+    forward = forward.rotate_x(self.pitch).rotate_y(self.yaw)
+    world_up = world_up.rotate_x(self.pitch).rotate_y(self.yaw)
+    self.back = forward.neg().normalize()
+    self.right = world_up.cross(self.back).normalize()
+    self.up = self.back.cross(self.right)
+
+    view_height f64 = 2.0 * tan(self.fov * 0.5 * PI / 180.0)
+    view_width f64 = view_height * (self.width as f64) / (self.height as f64)
+    view_right Vec3 = self.right * view_width
+    view_down Vec3 = self.up * -view_height
+    self.pixel_right = view_right / (self.width as f64)
+    self.pixel_down = view_down / (self.height as f64)
+
+    view_center Vec3 = self.position - self.back
+    top_left Vec3 = view_center - (view_right + view_down) * 0.5
+    self.first_pixel = top_left + (self.pixel_right + self.pixel_down) * 0.5
+
+fn move(local Vec3):
+    self.position += self.right * local.x + self.up * local.y + self.back * local.z
+    self.update()
+
+fn ray_for(x i32, y i32) Ray:
+    px f64 = (x as f64) + random::between(-0.5, 0.5)
+    py f64 = (y as f64) + random::between(-0.5, 0.5)
+    target Vec3 = self.first_pixel + self.pixel_right * px + self.pixel_down * py
+    return Ray::create(self.position, (target - self.position).normalize())

@@ -1,0 +1,8 @@
+fn set_hit(h &Hit, r &Ray, t f64, outward Vec3):
+    h.t = t
+    h.point = r.at(t)
+    h.front_face = r.direction.dot(outward) < 0.0
+    h.normal = outward
+    if not h.front_face:
+        h.normal = outward.neg()
+    h.material = self.material

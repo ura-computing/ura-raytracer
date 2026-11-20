@@ -1,0 +1,13 @@
+pub fn create(point Vec3, normal Vec3, material Material) Plane:
+    s Plane
+    s.point = point
+    s.normal = normal.normalize()
+    s.material = material
+    return s
+
+fn intersect(r &Ray, t_min f64, t_max f64, h &Hit) bool:
+    t f64 = 0.0
+    if not hit_plane(&r, &self.point, &self.normal, t_min, t_max, &t):
+        return False
+    self.set_hit(h, r, t, self.normal)
+    return True

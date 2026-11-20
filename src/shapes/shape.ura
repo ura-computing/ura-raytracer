@@ -1,14 +1,7 @@
 struct Shape:
     material Material
 
-    fn set_hit(h &Hit, r &Ray, t f64, outward Vec3):
-        h.t = t
-        h.point = r.at(t)
-        h.front_face = r.direction.dot(outward) < 0.0
-        h.normal = outward
-        if not h.front_face:
-            h.normal = outward.neg()
-        h.material = self.material
+    use "./shape/methods"
 
 fn hit_plane(r &Ray, point &Vec3, n &Vec3, t_min f64, t_max f64, t &f64) bool:
     denom f64 = n.dot(r.direction)

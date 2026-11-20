@@ -1,0 +1,48 @@
+pub fn create(base Vec3, axis Vec3, radius f64, height f64, material Material) Cone:
+    s Cone
+    s.base = base
+    s.axis = axis.normalize()
+    s.radius = radius
+    s.height = height
+    s.material = material
+    return s
+
+fn intersect(r &Ray, t_min f64, t_max f64, h &Hit) bool:
+    best_t f64 = t_max
+    best_normal Vec3
+    ob Vec3 = r.origin - self.base
+    dir_axis f64 = r.direction.dot(self.axis)
+    ob_axis f64 = ob.dot(self.axis)
+    dir_perp Vec3 = r.direction - self.axis * dir_axis
+    ob_perp Vec3 = ob - self.axis * ob_axis
+    k f64 = self.radius / self.height
+    k2 f64 = k * k
+    m f64 = self.height - ob_axis
+    a f64 = dir_perp.length_squared() - k2 * dir_axis * dir_axis
+    half_b f64 = ob_perp.dot(dir_perp) + k2 * m * dir_axis
+    c f64 = ob_perp.length_squared() - k2 * m * m
+    if fabs(a) > PARALLEL_EPSILON:
+        discriminant f64 = half_b * half_b - a * c
+        if discriminant >= 0.0:
+            root f64 = sqrt(discriminant)
+            t0 f64 = fmin((-half_b - root) / a, (-half_b + root) / a)
+            t1 f64 = fmax((-half_b - root) / a, (-half_b + root) / a)
+            roots Array<f64> = [t0, t1]
+            for t in roots:
+                cone_h f64 = ob_axis + t * dir_axis
+                is_closer bool = t > t_min and t < best_t
+                is_inside bool = cone_h >= 0.0 and cone_h <= self.height
+                if is_closer and is_inside:
+                    radial Vec3 = (ob_perp + dir_perp * t).normalize()
+                    best_t = t
+                    best_normal = (radial * self.height + self.axis * self.radius).normalize()
+                    break
+    t f64 = 0.0
+    down Vec3 = self.axis.neg()
+    if hit_disk(&r, &self.base, &down, self.radius, t_min, best_t, &t):
+        best_t = t
+        best_normal = down
+    if best_t >= t_max:
+        return False
+    self.set_hit(h, r, best_t, best_normal)
+    return True
