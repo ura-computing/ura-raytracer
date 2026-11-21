@@ -1,7 +1,8 @@
+use "@/core"
 use "@/math"
-use "@/stdlib"
-use "@/io"
-use "@/sdl2"
+use "@/posix/stdlib"
+use "@/posix/io"
+use "@/graphics"
 
 use "./config"
 use "./math"

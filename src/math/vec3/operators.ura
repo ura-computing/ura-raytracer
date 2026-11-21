@@ -1,39 +1,39 @@
-operator +(o &Vec3) Vec3:
+operator +(left &Vec3, right &Vec3) Vec3:
     return {
-        x: self.x + o.x,
-        y: self.y + o.y,
-        z: self.z + o.z
+        x: left.x + right.x,
+        y: left.y + right.y,
+        z: left.z + right.z
     }
 
-operator -(o &Vec3) Vec3:
+operator -(left &Vec3, right &Vec3) Vec3:
     return {
-        x: self.x - o.x,
-        y: self.y - o.y,
-        z: self.z - o.z
+        x: left.x - right.x,
+        y: left.y - right.y,
+        z: left.z - right.z
     }
 
-operator *(o &Vec3) Vec3:
+operator *(left &Vec3, right &Vec3) Vec3:
     return {
-        x: self.x * o.x,
-        y: self.y * o.y,
-        z: self.z * o.z
+        x: left.x * right.x,
+        y: left.y * right.y,
+        z: left.z * right.z
     }
 
-operator *(t f64) Vec3:
+operator *(left &Vec3, t f64) Vec3:
     return {
-        x: self.x * t,
-        y: self.y * t,
-        z: self.z * t
+        x: left.x * t,
+        y: left.y * t,
+        z: left.z * t
     }
 
-operator /(t f64) Vec3:
+operator /(left &Vec3, t f64) Vec3:
     return {
-        x: self.x / t,
-        y: self.y / t,
-        z: self.z / t
+        x: left.x / t,
+        y: left.y / t,
+        z: left.z / t
     }
 
-operator +=(o &Vec3):
-    self.x += o.x
-    self.y += o.y
-    self.z += o.z
+operator +=(left &Vec3, right &Vec3):
+    left.x += right.x
+    left.y += right.y
+    left.z += right.z
