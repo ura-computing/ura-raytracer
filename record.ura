@@ -31,9 +31,9 @@ fn frame_name(index i32) String:
 fn main() i32:
     first i32 = 0
     step i32 = 1
-    if os.argc == 3:
-        first = os.argv[1].to_int()
-        step = os.argv[2].to_int()
+    if os::argc == 3:
+        first = os::argv[1].to_int()
+        step = os::argv[2].to_int()
     scene Scene = Scene::create()
     camera Camera = Camera::create(W, H)
     header String = String::create("P6\n")
