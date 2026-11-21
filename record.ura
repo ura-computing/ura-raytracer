@@ -63,5 +63,5 @@ fn main() i32:
         fputs(header.chars(), file)
         fwrite(pixels.data, 1, pixels.size(), file)
         fclose(file)
-        output("frame ", frame + 1, "/", FRAMES, "\n")
+        io::out($"frame {frame + 1}/{FRAMES}\n")
     return 0
