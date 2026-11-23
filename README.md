@@ -29,7 +29,7 @@
 ```
 git clone https://github.com/mohammedhrima/Ura-Raytracer
 cd Ura-Raytracer
-ura install      # clones the ura std libraries into dependencies/
+ura deps install # clones the ura std libraries into deps/
 ura run          # opens the window; the image gets cleaner every frame
 ```
 
