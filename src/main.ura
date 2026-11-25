@@ -1,8 +1,7 @@
 use "@/core"
 use "@/math"
-use "@/posix/stdlib"
-use "@/posix/io"
-use "@/graphics"
+use "@/posix"
+use "@/graphics/sdl2"
 
 use "./config"
 use "./math"
@@ -11,64 +10,44 @@ use "./scene"
 use "./camera"
 use "./trace"
 
-fn main() i32:
-    SDL_Init(SDL_INIT_VIDEO)
-    window i8[] = SDL_CreateWindow(
-        "ura raytracer",
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        WIDTH,
-        HEIGHT,
-        SDL_WINDOW_SHOWN
-    )
-    renderer i8[] = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED)
-    texture i8[] = SDL_CreateTexture(
-        renderer,
-        SDL_PIXELFORMAT_RGBA8888,
-        SDL_TEXTUREACCESS_STREAMING,
-        WIDTH,
-        HEIGHT
-    )
+fn to_pixel(c Vec3) Color:
+    return Color::create(channel(c.x), channel(c.y), channel(c.z), 255)
 
+fn main() i32:
+    window Window = Window::create("ura raytracer", WIDTH, HEIGHT)
     scene Scene = Scene::create()
     camera Camera = Camera::create(WIDTH, HEIGHT)
 
     accumulated Array<Vec3>
     accumulated.resize(WIDTH * HEIGHT)
-    pixels Array<u32>
+    pixels Array<Color>
     pixels.resize(WIDTH * HEIGHT)
-    title String
-    title.resize(64)
-    none i8[]
     samples i32 = 0
-    quit bool = False
-    event SDL_Event
+    event Event
 
-    while not quit:
+    while window.is_open():
         changed bool = False
-        while SDL_PollEvent(&event) != 0:
-            if event.type == SDL_QUIT:
-                quit = True
-            if event.type != SDL_KEYDOWN:
+        while window.poll(&event):
+            if event.kind != EventKind::KEY_DOWN:
                 continue
             step Vec3
-            match event.sym:
-                case SDLK_ESCAPE:
-                    quit = True
-                case SDLK_r:
+            match event.key:
+                case Key::ESCAPE:
+                    window.close()
+                case Key::R:
                     camera.reset()
                     changed = True
-                case SDLK_UP:
+                case Key::UP:
                     step.y = CAMERA_STEP
-                case SDLK_DOWN:
+                case Key::DOWN:
                     step.y = -CAMERA_STEP
-                case SDLK_LEFT:
+                case Key::LEFT:
                     step.x = -CAMERA_STEP
-                case SDLK_RIGHT:
+                case Key::RIGHT:
                     step.x = CAMERA_STEP
-                case SDLK_PAGEUP:
+                case Key::PAGE_UP:
                     step.z = -CAMERA_STEP
-                case SDLK_PAGEDOWN:
+                case Key::PAGE_DOWN:
                     step.z = CAMERA_STEP
                 default:
                     continue
@@ -82,7 +61,7 @@ fn main() i32:
             for i in Range::create(0, WIDTH * HEIGHT):
                 accumulated[i] = dark
 
-        start u32 = SDL_GetTicks()
+        clock time::Clock = time::Clock::create()
         samples += 1
         inverse f64 = 1.0 / (samples as f64)
         for y in Range::create(0, HEIGHT):
@@ -90,16 +69,8 @@ fn main() i32:
                 i i32 = y * WIDTH + x
                 accumulated[i] += trace(&scene, camera.ray_for(x, y))
                 pixels[i] = to_pixel(accumulated[i] * inverse)
-        elapsed u32 = SDL_GetTicks() - start
 
-        SDL_UpdateTexture(texture, none, pixels.data as i8[], WIDTH * 4)
-        SDL_RenderCopy(renderer, texture, none, none)
-        SDL_RenderPresent(renderer)
-        sprintf(title.data, "%u ms | %d samples", elapsed, samples)
-        SDL_SetWindowTitle(window, title.data)
-
-    SDL_DestroyTexture(texture)
-    SDL_DestroyRenderer(renderer)
-    SDL_DestroyWindow(window)
-    SDL_Quit()
+        window.draw(pixels)
+        window.present()
+        window.set_title($"{clock.elapsed()} ms | {samples} samples")
     return 0

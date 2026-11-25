@@ -22,12 +22,12 @@ fn intersect(r &Ray, t_min f64, t_max f64, h &Hit) bool:
         c f64 = oc_perp.length_squared() - self.radius * self.radius
         discriminant f64 = half_b * half_b - a * c
         if discriminant >= 0.0:
-            root f64 = sqrt(discriminant)
+            root f64 = math::sqrt(discriminant)
             roots Array<f64> = [(-half_b - root) / a, (-half_b + root) / a]
             for t in roots:
                 side_h f64 = oc_axis + t * dir_axis
                 is_closer bool = t > t_min and t < best_t
-                if is_closer and fabs(side_h) <= half_height:
+                if is_closer and math::fabs(side_h) <= half_height:
                     best_t = t
                     best_normal = (oc_perp + dir_perp * t) / self.radius
                     break

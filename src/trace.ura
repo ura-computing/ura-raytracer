@@ -15,7 +15,7 @@ fn sky(direction Vec3) Vec3:
 fn reflectance(cosine f64, eta f64) f64:
     r0 f64 = (1.0 - eta) / (1.0 + eta)
     r0 = r0 * r0
-    return r0 + (1.0 - r0) * pow(1.0 - cosine, 5.0)
+    return r0 + (1.0 - r0) * math::pow(1.0 - cosine, 5.0)
 
 fn direct_light(scene &Scene, h &Hit) Vec3:
     dark Vec3
@@ -43,8 +43,8 @@ fn bounce(r &Ray, h &Hit) Vec3:
             eta f64 = m.ior
             if h.front_face:
                 eta = 1.0 / m.ior
-            cos_theta f64 = fmin(r.direction.neg().dot(h.normal), 1.0)
-            sin_theta f64 = sqrt(1.0 - cos_theta * cos_theta)
+            cos_theta f64 = math::fmin(r.direction.neg().dot(h.normal), 1.0)
+            sin_theta f64 = math::sqrt(1.0 - cos_theta * cos_theta)
             total_reflection bool = eta * sin_theta > 1.0
             if total_reflection or reflectance(cos_theta, eta) > random::uniform():
                 return r.direction.reflect(h.normal)
@@ -70,8 +70,5 @@ fn trace(scene &Scene, start Ray) Vec3:
         r = Ray::create(h.point, bounce(&r, &h).normalize())
     return result
 
-fn to_pixel(c Vec3) u32:
-    red u32 = (255.99 * sqrt(fmin(c.x, 1.0))) as u32
-    green u32 = (255.99 * sqrt(fmin(c.y, 1.0))) as u32
-    blue u32 = (255.99 * sqrt(fmin(c.z, 1.0))) as u32
-    return red * 16777216 + green * 65536 + blue * 256 + 255
+fn channel(value f64) u8:
+    return (255.99 * math::sqrt(math::fmin(value, 1.0))) as u8

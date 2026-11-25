@@ -1,6 +1,8 @@
 mod random:
+    RAND_RANGE f64 = 2147483648.0
+
     fn uniform() f64:
-        return rand() as f64 / 2147483648.0
+        return cstd::rand() as f64 / RAND_RANGE
 
     fn between(low f64, high f64) f64:
         return low + (high - low) * uniform()
@@ -14,7 +16,7 @@ mod random:
             }
             len2 f64 = p.length_squared()
             if len2 > 0.000001 and len2 <= 1.0:
-                return p / sqrt(len2)
+                return p / math::sqrt(len2)
         return {
             x: 0.0,
             y: 1.0,

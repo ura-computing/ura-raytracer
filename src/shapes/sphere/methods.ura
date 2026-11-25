@@ -13,7 +13,7 @@ fn intersect(r &Ray, t_min f64, t_max f64, h &Hit) bool:
     discriminant f64 = half_b * half_b - a * c
     if discriminant < 0.0:
         return False
-    root f64 = sqrt(discriminant)
+    root f64 = math::sqrt(discriminant)
     t f64 = (-half_b - root) / a
     if t <= t_min or t >= t_max:
         t = (-half_b + root) / a

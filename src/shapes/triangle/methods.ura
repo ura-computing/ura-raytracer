@@ -12,7 +12,7 @@ fn intersect(r &Ray, t_min f64, t_max f64, h &Hit) bool:
     edge2 Vec3 = self.c - self.a
     p Vec3 = r.direction.cross(edge2)
     det f64 = edge1.dot(p)
-    if fabs(det) < PARALLEL_EPSILON:
+    if math::fabs(det) < PARALLEL_EPSILON:
         return False
     inv_det f64 = 1.0 / det
     s Vec3 = r.origin - self.a

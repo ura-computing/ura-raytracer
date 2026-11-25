@@ -19,7 +19,7 @@ fn length_squared() f64:
     return self.dot(self)
 
 fn length() f64:
-    return sqrt(self.length_squared())
+    return math::sqrt(self.length_squared())
 
 fn normalize() Vec3:
     len f64 = self.length()
@@ -31,14 +31,14 @@ fn reflect(n Vec3) Vec3:
     return self - n * (2.0 * self.dot(n))
 
 fn refract(n Vec3, eta f64) Vec3:
-    cos_theta f64 = fmin(self.neg().dot(n), 1.0)
+    cos_theta f64 = math::fmin(self.neg().dot(n), 1.0)
     perpendicular Vec3 = (self + n * cos_theta) * eta
-    parallel Vec3 = n * -sqrt(fabs(1.0 - perpendicular.length_squared()))
+    parallel Vec3 = n * -math::sqrt(math::fabs(1.0 - perpendicular.length_squared()))
     return perpendicular + parallel
 
 fn rotate_x(angle f64) Vec3:
-    c f64 = cos(angle)
-    s f64 = sin(angle)
+    c f64 = math::cos(angle)
+    s f64 = math::sin(angle)
     return {
         x: self.x,
         y: self.y * c - self.z * s,
@@ -46,8 +46,8 @@ fn rotate_x(angle f64) Vec3:
     }
 
 fn rotate_y(angle f64) Vec3:
-    c f64 = cos(angle)
-    s f64 = sin(angle)
+    c f64 = math::cos(angle)
+    s f64 = math::sin(angle)
     return {
         x: self.x * c + self.z * s,
         y: self.y,

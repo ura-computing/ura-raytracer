@@ -33,7 +33,7 @@ fn update():
     self.right = world_up.cross(self.back).normalize()
     self.up = self.back.cross(self.right)
 
-    view_height f64 = 2.0 * tan(self.fov * 0.5 * PI / 180.0)
+    view_height f64 = 2.0 * math::tan(self.fov * 0.5 * PI / 180.0)
     view_width f64 = view_height * (self.width as f64) / (self.height as f64)
     view_right Vec3 = self.right * view_width
     view_down Vec3 = self.up * -view_height

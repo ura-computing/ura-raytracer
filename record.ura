@@ -1,7 +1,6 @@
 use "@/core"
 use "@/math"
-use "@/posix/stdlib"
-use "@/posix/io"
+use "@/posix"
 
 use "./src/config"
 use "./src/math"
@@ -17,7 +16,7 @@ H       i32 = 720
 RADIUS  f64 = 4.7
 
 fn byte(value f64) char:
-    return ((255.99 * sqrt(fmin(value, 1.0))) as i32) as char
+    return ((255.99 * math::sqrt(math::fmin(value, 1.0))) as i32) as char
 
 fn frame_name(index i32) String:
     name String = String::create("frames/frame_")
@@ -44,12 +43,16 @@ fn main() i32:
     header += "\n255\n"
 
     for frame in Range::create(first, FRAMES, step):
-        angle f64 = 0.6 * sin((frame as f64) * 2.0 * PI / (FRAMES as f64))
-        camera.position = { x: RADIUS * sin(angle), y: 1.35, z: RADIUS * cos(angle) }
+        angle f64 = 0.6 * math::sin((frame as f64) * 2.0 * PI / (FRAMES as f64))
+        camera.position = { 
+            x: RADIUS * math::sin(angle), 
+            y: 1.35, 
+            z: RADIUS * math::cos(angle) 
+        }
         camera.yaw = angle
         camera.update()
 
-        pixels Array<char>
+        pixels String
         for y in Range::create(0, H):
             for x in Range::create(0, W):
                 color Vec3
@@ -60,9 +63,9 @@ fn main() i32:
                 pixels.append(byte(color.y))
                 pixels.append(byte(color.z))
 
-        file i8[] = fopen(frame_name(frame).chars(), "wb")
-        fputs(header.chars(), file)
-        fwrite(pixels.data, 1, pixels.size(), file)
-        fclose(file)
+        file fs::File = fs::File::create(frame_name(frame), "w")
+        file.write(header)
+        file.write(pixels)
+        file.close()
         io::out($"frame {frame + 1}/{FRAMES}\n")
     return 0

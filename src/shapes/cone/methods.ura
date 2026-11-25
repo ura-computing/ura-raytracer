@@ -21,12 +21,12 @@ fn intersect(r &Ray, t_min f64, t_max f64, h &Hit) bool:
     a f64 = dir_perp.length_squared() - k2 * dir_axis * dir_axis
     half_b f64 = ob_perp.dot(dir_perp) + k2 * m * dir_axis
     c f64 = ob_perp.length_squared() - k2 * m * m
-    if fabs(a) > PARALLEL_EPSILON:
+    if math::fabs(a) > PARALLEL_EPSILON:
         discriminant f64 = half_b * half_b - a * c
         if discriminant >= 0.0:
-            root f64 = sqrt(discriminant)
-            t0 f64 = fmin((-half_b - root) / a, (-half_b + root) / a)
-            t1 f64 = fmax((-half_b - root) / a, (-half_b + root) / a)
+            root f64 = math::sqrt(discriminant)
+            t0 f64 = math::fmin((-half_b - root) / a, (-half_b + root) / a)
+            t1 f64 = math::fmax((-half_b - root) / a, (-half_b + root) / a)
             roots Array<f64> = [t0, t1]
             for t in roots:
                 cone_h f64 = ob_axis + t * dir_axis
